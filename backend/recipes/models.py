@@ -26,6 +26,12 @@ class Ingredient(models.Model):
         ordering = ('name',)
         verbose_name = 'Ингридиент'
         verbose_name_plural = 'Ингридиенты'
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_ingredients',
+                fields=['name', 'measurement_unit'],
+            )
+        ]
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}'
@@ -52,6 +58,12 @@ class IngredientRecipe(models.Model):
         ordering = ('recipe',)
         verbose_name = 'Ингридиент и рецепт'
         verbose_name_plural = 'Ингридиенты и рецепты'
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_ingredients_for_recipe',
+                fields=['ingredient', 'recipe'],
+            )
+        ]
 
     def __str__(self):
         return f'{self.ingredient}, {self.recipe}'
