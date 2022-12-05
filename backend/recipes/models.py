@@ -10,6 +10,7 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
+    """Модель ингридиентов."""
     name = models.CharField(
         max_length=128,
         verbose_name='Название ингредиента',
@@ -31,9 +32,10 @@ class Ingredient(models.Model):
 
 
 class IngredientRecipe(models.Model):
+    """Модель для связи ингридиентов и рецептов."""
     amount = models.PositiveIntegerField(
         verbose_name='Количество',
-        help_text='Количество ингридентов'
+        help_text='Количество ингридиентов'
     )
     ingredient = models.ForeignKey(
         'Ingredient',
@@ -56,6 +58,7 @@ class IngredientRecipe(models.Model):
 
 
 class Tag(models.Model):
+    """Модель тегов."""
     name = models.CharField(
         max_length=128,
         verbose_name='Название тега',
@@ -78,6 +81,7 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
+    """Модель рецептов."""
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
