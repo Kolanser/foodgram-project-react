@@ -94,7 +94,11 @@ class Recipe(models.Model):
         verbose_name='Название рецепта',
         help_text='Максимальная длина названия 128 символов'
     )
-    # image = models.ImageField('Изображение', upload_to='recipes/')
+    image = models.ImageField(
+        verbose_name='Изображение рецепта',
+        upload_to='recipes/',
+        blank=True
+    )
     description = models.TextField(
         max_length=256,
         blank=True,
