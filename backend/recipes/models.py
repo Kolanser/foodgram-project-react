@@ -1,7 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 
+
+# Минимальное время приготовления рецепта
+MIN_VALUE_COOKING_TIME: int = 1
 
 # class User(AbstractUser):
 #     pass
@@ -102,14 +106,15 @@ class Recipe(models.Model):
         help_text='Автор рецепта'
     )
     name = models.CharField(
-        max_length=128,
+        max_length=200,
         verbose_name='Название рецепта',
-        help_text='Максимальная длина названия 128 символов'
+        help_text='Максимальная длина названия 200 символов'
     )
     image = models.ImageField(
         verbose_name='Изображение рецепта',
         upload_to='recipes/',
-        blank=True
+        blank=True,
+        help_text='Картинка, закодированная в Base64'
     )
     description = models.TextField(
         max_length=256,
@@ -122,10 +127,14 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Ингридиенты'
     )
-    tags = models.ManyToManyField('Tag', related_name='recipes')
+    tags = models.ManyToManyField(
+        'Tag',
+        related_name='recipes'
+    )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления рецепта',
-        help_text='Время в минутах'
+        help_text='Время приготовления (в минутах)',
+        validators=MinValueValidator(MIN_VALUE_COOKING_TIME)
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
