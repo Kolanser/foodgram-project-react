@@ -1,3 +1,15 @@
-from django.shortcuts import render
+from recipes.models import Ingredient, Tag
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from .serializers import IngredientSerializer, TagSerializer
 
-# Create your views here.
+
+class IngredientViewSet(ReadOnlyModelViewSet):
+    """Получение ингридиентов."""
+    serializer_class = IngredientSerializer
+    queryset = Ingredient.objects.all()
+
+
+class TagViewSet(ReadOnlyModelViewSet):
+    """Получение тегов."""
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
