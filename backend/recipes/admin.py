@@ -1,5 +1,18 @@
 from django.contrib import admin
-from .models import Ingredient, IngredientRecipe, Tag, Recipe
+from .models import Ingredient, IngredientRecipe, Tag, Recipe, User
+
+# @admin.register(User)
+# class UserAdmin(admin.ModelAdmin):
+#     """Админка ингридиентов."""
+#     list_display = (
+#         'email',
+#         'username',
+#         'first_name',
+#         'first_name',
+#         'password'
+#     )
+#     search_fields = ('username',)
+#     list_filter = ('username', 'email')
 
 
 @admin.register(Ingredient)
@@ -53,5 +66,5 @@ class RecipeAdmin(admin.ModelAdmin):
         'pub_date'
     )
     search_fields = ('name', 'author', 'tags')
-    list_filter = ('pub_date', 'cooking_time')
+    list_filter = ('name', 'tags', 'author')
     empty_value_display = '-пусто-'

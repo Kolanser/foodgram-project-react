@@ -7,9 +7,6 @@ from django.core.validators import MinValueValidator
 # Минимальное время приготовления рецепта
 MIN_VALUE_COOKING_TIME: int = 1
 
-# class User(AbstractUser):
-#     pass
-
 User = get_user_model()
 
 
@@ -134,7 +131,7 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления рецепта',
         help_text='Время приготовления (в минутах)',
-        validators=MinValueValidator(MIN_VALUE_COOKING_TIME)
+        validators=[MinValueValidator(MIN_VALUE_COOKING_TIME)]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -149,4 +146,4 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return self.name
+        return f'{self.name}, {self.author}'
