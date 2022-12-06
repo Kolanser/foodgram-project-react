@@ -13,18 +13,17 @@ User = get_user_model()
 class Ingredient(models.Model):
     """Модель ингридиентов."""
     name = models.CharField(
-        max_length=128,
+        max_length=200,
         verbose_name='Название ингредиента',
-        help_text='Максимальная длина ингредиента 128 символов'
+        help_text='Максимальная длина ингредиента 200 символов'
     )
     measurement_unit = models.CharField(
-        max_length=16,
+        max_length=200,
         verbose_name='Единица измерения',
         help_text='кг, г, шт, ст.л. и т.д.'
     )
 
     class Meta:
-        ordering = ('name',)
         verbose_name = 'Ингридиент'
         verbose_name_plural = 'Ингридиенты'
         constraints = [
@@ -73,16 +72,19 @@ class IngredientRecipe(models.Model):
 class Tag(models.Model):
     """Модель тегов."""
     name = models.CharField(
-        max_length=128,
+        max_length=200,
         verbose_name='Название тега',
-        help_text='Максимальная длина тега 128 символов'
+        help_text='Максимальная длина тега 200 символов'
     )
     color = models.CharField(
-        max_length=16,
+        max_length=7,
         verbose_name='Цвет тега',
         help_text='Цветовой HEX-код (например, #49B64E)'
         )
-    slug = models.SlugField(max_length=128, unique=True)
+    slug = models.SlugField(
+        max_length=200,
+        unique=True
+    )
 
     class Meta:
         ordering = ('name',)
