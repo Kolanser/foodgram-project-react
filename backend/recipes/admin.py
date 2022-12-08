@@ -1,18 +1,18 @@
 from django.contrib import admin
-from .models import Ingredient, IngredientRecipe, Tag, Recipe
+from .models import CustomUser, Ingredient, IngredientRecipe, Tag, Recipe
 
-# @admin.register(User)
-# class UserAdmin(admin.ModelAdmin):
-#     """Админка ингридиентов."""
-#     list_display = (
-#         'email',
-#         'username',
-#         'first_name',
-#         'first_name',
-#         'password'
-#     )
-#     search_fields = ('username',)
-#     list_filter = ('username', 'email')
+@admin.register(CustomUser)
+class CustomUserAdmin(admin.ModelAdmin):
+    """Админка ингридиентов."""
+    list_display = (
+        'email',
+        'username',
+        'first_name',
+        'first_name',
+        'password'
+    )
+    search_fields = ('username',)
+    list_filter = ('username', 'email')
 
 
 @admin.register(Ingredient)
@@ -59,7 +59,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'author',
         'name',
-        'description',
+        'text',
         # 'ingredients',
         # 'tags',
         'cooking_time',

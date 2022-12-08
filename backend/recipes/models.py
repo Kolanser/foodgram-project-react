@@ -121,7 +121,7 @@ class Recipe(models.Model):
         blank=True,
         help_text='Картинка, закодированная в Base64'
     )
-    description = models.TextField(
+    text = models.TextField(
         max_length=256,
         blank=True,
         verbose_name='Описание рецепта'
@@ -155,3 +155,55 @@ class Recipe(models.Model):
 
     def __str__(self):
         return f'{self.name}, {self.author}'
+
+
+class Follow(models.Model):
+    """Модель подписки."""
+    user = models.ForeignKey(
+        'CustomUser',
+        on_delete=models.CASCADE,
+        # related_name='follower',
+        verbose_name='Пользователь',
+        help_text='Пользователь, который подписывается'
+    )
+    following = models.ForeignKey(
+        'CustomUser',
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор рецепта',
+        help_text='Автор, на которого подписываются'
+    )
+
+
+class Favorite(models.Model):
+    """Модель избранного."""
+    user = models.ForeignKey(
+        'CustomUser',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        help_text='Пользователь, который добавил рецепт в избранное'
+    )
+    recipe = models.ForeignKey(
+        'Recipe',
+        on_delete=models.CASCADE,
+        related_name='favorited',
+        verbose_name='Рецепт',
+        help_text='Рецепт в избранном'
+    )
+
+
+class ShoppingCart(models.Model):
+    """Модель списка покупок."""
+    user = models.ForeignKey(
+        'CustomUser',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        help_text='Пользователь, который добавил рецепт в список покупок'
+    )
+    recipe = models.ForeignKey(
+        'Recipe',
+        on_delete=models.CASCADE,
+        related_name='in_shopping_cart',
+        verbose_name='Рецепт',
+        help_text='Рецепт в списке покупок'
+    )

@@ -1,6 +1,6 @@
-from recipes.models import Ingredient, Tag
+from recipes.models import Ingredient, Recipe, Tag
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from .serializers import  IngredientSerializer, TagSerializer
+from .serializers import  IngredientSerializer, RecipeSerializer, TagSerializer
 from djoser.views import UserViewSet
 
 
@@ -19,3 +19,8 @@ class TagViewSet(ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
 
+
+class RecipeViewSet(ModelViewSet):
+    """Получение рецептов."""
+    serializer_class = RecipeSerializer
+    queryset = Recipe.objects.all()
