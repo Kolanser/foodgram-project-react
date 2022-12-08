@@ -12,7 +12,8 @@ class CustomUser(AbstractUser):
     first_name = models.CharField('first name', max_length=150, unique=True)
     last_name = models.CharField('last name', max_length=150, unique=True)
     email = models.EmailField('email address', unique=True)
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
 
 class Ingredient(models.Model):

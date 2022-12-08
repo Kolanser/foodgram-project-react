@@ -1,12 +1,5 @@
-from djoser.serializers import UserSerializer
-from recipes.models import CustomUser, Ingredient, Tag
+from recipes.models import Ingredient, Tag
 from rest_framework import serializers
-
-
-class CustomUserSerializer(UserSerializer):
-    class Meta:
-        # model = CustomUser
-        fields = ('email', 'username', 'first_name', 'last_name', 'password')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
