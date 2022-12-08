@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'djoser',
     'recipes',
     'users',
     'api',
-    'rest_framework'
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -138,3 +140,20 @@ MEDIA_URL = '/media/'
 
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_ROOT = BASE_DIR / 'media/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
+
+# DJOSER = {
+#     # 'LOGIN_FIELD': 'email',
+#     'SERIALIZERS':
+#         {
+#             'user': 'api.serializers.CustomUserSerializer',
+#             'user_create': 'api.serializers.CustomUserCreateSerializer'
+#         }
+# }
+
+AUTH_USER_MODEL = 'recipes.CustomUser'

@@ -1,13 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 
 
 # Минимальное время приготовления рецепта
 MIN_VALUE_COOKING_TIME: int = 1
 
-User = get_user_model()
+
+class CustomUser(AbstractUser):
+    """Модель пользователя."""
+    first_name = models.CharField('first name', max_length=150, unique=True)
+    last_name = models.CharField('last name', max_length=150, unique=True)
+    email = models.EmailField('email address', unique=True)
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
 
 class Ingredient(models.Model):
@@ -98,7 +103,7 @@ class Tag(models.Model):
 class Recipe(models.Model):
     """Модель рецептов."""
     author = models.ForeignKey(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор',
