@@ -72,7 +72,7 @@ class IngredientRecipe(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.ingredient}, {self.recipe}'
+        return f'{self.ingredient}, {self.amount}, {self.recipe}'
 
 
 class Tag(models.Model):
@@ -80,7 +80,8 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=200,
         verbose_name='Название тега',
-        help_text='Максимальная длина тега 200 символов'
+        help_text='Максимальная длина тега 200 символов',
+        unique=True
     )
     color = models.CharField(
         max_length=7,
@@ -123,7 +124,6 @@ class Recipe(models.Model):
     )
     text = models.TextField(
         max_length=256,
-        blank=True,
         verbose_name='Описание рецепта'
     )
     ingredients = models.ManyToManyField(
@@ -162,7 +162,7 @@ class Follow(models.Model):
     user = models.ForeignKey(
         'CustomUser',
         on_delete=models.CASCADE,
-        # related_name='follower',
+        related_name='subscriptions',
         verbose_name='Пользователь',
         help_text='Пользователь, который подписывается'
     )
@@ -173,6 +173,20 @@ class Follow(models.Model):
         verbose_name='Автор рецепта',
         help_text='Автор, на которого подписываются'
     )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_follows',
+                fields=['user', 'following'],
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('following')),
+                name='non_self_follow'
+            )
+        ]
 
 
 class Favorite(models.Model):
@@ -191,6 +205,16 @@ class Favorite(models.Model):
         help_text='Рецепт в избранном'
     )
 
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_favorites',
+                fields=['user', 'recipe'],
+            )
+        ]
+
 
 class ShoppingCart(models.Model):
     """Модель списка покупок."""
@@ -207,3 +231,13 @@ class ShoppingCart(models.Model):
         verbose_name='Рецепт',
         help_text='Рецепт в списке покупок'
     )
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_shopping_carts',
+                fields=['user', 'recipe'],
+            )
+        ]

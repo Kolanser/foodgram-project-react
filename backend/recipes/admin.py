@@ -1,5 +1,14 @@
 from django.contrib import admin
-from .models import CustomUser, Ingredient, IngredientRecipe, Tag, Recipe
+from .models import (
+    CustomUser,
+    Favorite,
+    Follow,
+    Ingredient,
+    IngredientRecipe,
+    ShoppingCart,
+    Tag, 
+    Recipe
+)
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -68,3 +77,30 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author', 'tags')
     list_filter = ('name', 'tags', 'author')
     empty_value_display = '-пусто-'
+
+
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    """Админка подписок."""
+    list_display = (
+        'user',
+        'following',
+    )
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    """Админка избранного."""
+    list_display = (
+        'user',
+        'recipe',
+    )
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    """Админка списка покупок."""
+    list_display = (
+        'user',
+        'recipe',
+    )
