@@ -148,3 +148,9 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'recipes.CustomUser'
+
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'api.serializers.CustomUserSerializer',
+    }
+}
