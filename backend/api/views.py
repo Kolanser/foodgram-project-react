@@ -1,6 +1,14 @@
-from recipes.models import Ingredient, Recipe, Tag, IngredientRecipe
+from django.shortcuts import get_object_or_404
+from recipes.models import Follow, Ingredient, Recipe, Tag
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer, RecipeWriteSerializer
+from .serializers import (
+    CustomUser,
+    FollowSerializer,
+    IngredientSerializer,
+    RecipeSerializer,
+    TagSerializer,
+    RecipeWriteSerializer
+)
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
@@ -17,16 +25,47 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     """Получение рецептов."""
-    # serializer_class = RecipeSerializer
     queryset = Recipe.objects.all()
 
     def perform_create(self, serializer): 
-        # title_id = self.kwargs.get('title_id')
-        # review_id = self.kwargs.get('review_id')
-        # review = get_object_or_404(Review, id=review_id, title__id=title_id)
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH', 'PUT'):
             return RecipeWriteSerializer
         return RecipeSerializer
+
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
+# from rest_framework import status
+# from rest_framework.response import Response
+class FollowViewSet(ModelViewSet):
+    """Получение подписок."""
+    serializer_class = FollowSerializer
+    queryset = Follow.objects.all()
+
+    def perform_create(self, serializer):
+        user_id = self.kwargs.get('user_id')
+        following = get_object_or_404(CustomUser, id=user_id)
+        serializer.save(user=self.request.user, following=following)
+
+    @action(methods=['post', 'delete'], detail=True)
+    def subscribe(self, request, pk=None):
+        following = get_object_or_404(CustomUser, id=pk)
+        user = request.user
+        if (self.request.method == 'DELETE' and
+                user.subscriptions.filter(following=following)):
+            Follow.objects.filter(
+                user=request.user, following=following
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif (self.request.method == 'POST' and
+                not user.subscriptions.filter(following=following)):
+            Follow.objects.create(user=request.user, following=following)
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False)
+    def subscriptions(self, request):
+        pass

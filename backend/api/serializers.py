@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
 from djoser.conf import settings
 from recipes.models import (
-    CustomUser, Ingredient, IngredientRecipe, Recipe, Tag
+    CustomUser, Follow, Ingredient, IngredientRecipe, Recipe, Tag
 )
 from rest_framework import serializers
 
@@ -128,3 +128,58 @@ class RecipeWriteSerializer(RecipeSerializer):
                 )
                 recipe.tags.add(current_tag)
             return recipe
+
+
+class RecipeForFollowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+        model = Recipe
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    """Сериализатор модели Follow."""
+    email = serializers.ReadOnlyField(source='following.email')
+    id = serializers.ReadOnlyField(source='following.id')
+    username = serializers.ReadOnlyField(source='following.username')
+    first_name = serializers.ReadOnlyField(source='following.first_name')
+    last_name = serializers.ReadOnlyField(source='following.last_name')
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+    recipes = RecipeForFollowSerializer(many=True, source='following.recipes', read_only=True)
+    recipes_count = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+        )
+        model = Follow
+        read_only_fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+        )
+
+    def get_is_subscribed(self, obj):
+        return self.context['request'].user.subscriptions.filter(
+            following=obj.following
+            ).exists()
+
+    def get_recipes_count(self, obj):
+        return obj.following.recipes.count()
