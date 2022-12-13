@@ -3,6 +3,7 @@ from recipes.models import Favorite, Follow, Ingredient, Recipe, Tag
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .serializers import (
     CustomUser,
+    RecipeForFollowSerializer,
     FollowSerializer,
     IngredientSerializer,
     RecipeSerializer,
@@ -35,7 +36,9 @@ class RecipeViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH', 'PUT'):
+        if self.action == 'favorite':
+            return RecipeForFollowSerializer 
+        elif self.request.method in ('POST', 'PATCH', 'PUT'):
             return RecipeWriteSerializer
         return RecipeSerializer
 
@@ -45,14 +48,18 @@ class RecipeViewSet(ModelViewSet):
         user = request.user
         if (self.request.method == 'DELETE' and
                 user.favorite_recipes.filter(recipe=recipe)):
-            Favorite.objects.filter(
-                user=user, recipe=recipe
-            ).delete()
+            user.favorite_recipes.get(recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         elif (self.request.method == 'POST' and
                 not user.favorite_recipes.filter(recipe=recipe)):
             Favorite.objects.create(user=user, recipe=recipe)
-            return Response(status=status.HTTP_200_OK)
+            serializers_obj = self.get_serializer(
+                recipe
+            )
+            return Response(
+                serializers_obj.data,
+                status=status.HTTP_201_CREATED
+            )
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
