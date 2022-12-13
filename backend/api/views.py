@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
-from recipes.models import Favorite, Follow, Ingredient, Recipe, Tag
+from recipes.models import Favorite, Follow, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .serializers import (
     CustomUser,
-    RecipeForFollowSerializer,
+    RecipeReducedSerializer,
     FollowSerializer,
     IngredientSerializer,
     RecipeSerializer,
@@ -36,8 +36,8 @@ class RecipeViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
-        if self.action == 'favorite':
-            return RecipeForFollowSerializer 
+        if self.action in ['favorite', 'shopping_cart']:
+            return RecipeReducedSerializer
         elif self.request.method in ('POST', 'PATCH', 'PUT'):
             return RecipeWriteSerializer
         return RecipeSerializer
@@ -53,6 +53,26 @@ class RecipeViewSet(ModelViewSet):
         elif (self.request.method == 'POST' and
                 not user.favorite_recipes.filter(recipe=recipe)):
             Favorite.objects.create(user=user, recipe=recipe)
+            serializers_obj = self.get_serializer(
+                recipe
+            )
+            return Response(
+                serializers_obj.data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post', 'delete'], detail=True)
+    def shopping_cart(self, request, pk=None):
+        recipe = get_object_or_404(Recipe, id=pk)
+        user = request.user
+        if (self.request.method == 'DELETE' and
+                user.shopping_carts.filter(recipe=recipe)):
+            user.shopping_carts.get(recipe=recipe).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif (self.request.method == 'POST' and
+                not user.shopping_carts.filter(recipe=recipe)):
+            ShoppingCart.objects.create(user=user, recipe=recipe)
             serializers_obj = self.get_serializer(
                 recipe
             )

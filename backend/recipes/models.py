@@ -222,6 +222,7 @@ class ShoppingCart(models.Model):
     user = models.ForeignKey(
         'CustomUser',
         on_delete=models.CASCADE,
+        related_name='shopping_carts',
         verbose_name='Пользователь',
         help_text='Пользователь, который добавил рецепт в список покупок'
     )

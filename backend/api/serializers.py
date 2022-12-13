@@ -130,7 +130,7 @@ class RecipeWriteSerializer(RecipeSerializer):
             return recipe
 
 
-class RecipeForFollowSerializer(serializers.ModelSerializer):
+class RecipeReducedSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
@@ -150,7 +150,7 @@ class FollowSerializer(serializers.ModelSerializer):
     first_name = serializers.ReadOnlyField(source='following.first_name')
     last_name = serializers.ReadOnlyField(source='following.last_name')
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    recipes = RecipeForFollowSerializer(many=True, source='following.recipes', read_only=True)
+    recipes = RecipeReducedSerializer(many=True, source='following.recipes', read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
