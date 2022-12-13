@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from recipes.models import Follow, Ingredient, Recipe, Tag
+from recipes.models import Favorite, Follow, Ingredient, Recipe, Tag
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .serializers import (
     CustomUser,
@@ -39,8 +39,26 @@ class RecipeViewSet(ModelViewSet):
             return RecipeWriteSerializer
         return RecipeSerializer
 
+    @action(methods=['post', 'delete'], detail=True)
+    def favorite(self, request, pk=None):
+        recipe = get_object_or_404(Recipe, id=pk)
+        user = request.user
+        if (self.request.method == 'DELETE' and
+                user.favorite_recipes.filter(recipe=recipe)):
+            Favorite.objects.filter(
+                user=user, recipe=recipe
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif (self.request.method == 'POST' and
+                not user.favorite_recipes.filter(recipe=recipe)):
+            Favorite.objects.create(user=user, recipe=recipe)
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 class CustomUserViewSet(UserViewSet):
+    """Получение и работа с пользователями."""
+
     @action(methods=['post', 'delete'], detail=True)
     def subscribe(self, request, id=None):
         following = get_object_or_404(CustomUser, id=id)
@@ -48,13 +66,20 @@ class CustomUserViewSet(UserViewSet):
         if (self.request.method == 'DELETE' and
                 user.subscriptions.filter(following=following)):
             Follow.objects.filter(
-                user=request.user, following=following
+                user=user, following=following
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         elif (self.request.method == 'POST' and
+                user != following and
                 not user.subscriptions.filter(following=following)):
-            Follow.objects.create(user=request.user, following=following)
-            return Response(status=status.HTTP_200_OK)
+            Follow.objects.create(user=user, following=following)
+            serializer_class_obj = self.get_serializer(
+                user.subscriptions.get(user=user, following=following)
+            )
+            return Response(
+                serializer_class_obj.data,
+                status=status.HTTP_201_CREATED
+            )
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False)
@@ -65,6 +90,6 @@ class CustomUserViewSet(UserViewSet):
         return Response(serializer_class_obj.data)
 
     def get_serializer_class(self):
-        if self.action == 'subscriptions':
+        if self.action in ['subscriptions', 'subscribe']:
             return FollowSerializer
         return super().get_serializer_class()
