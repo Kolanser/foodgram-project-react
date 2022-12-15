@@ -53,6 +53,7 @@ class IngredientRecipe(models.Model):
         'Ingredient',
         on_delete=models.CASCADE,
         verbose_name='Ингридиент',
+        # related_name='ingredients_for_recipe'
     )
     recipe = models.ForeignKey(
         'Recipe',
@@ -119,7 +120,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name='Изображение рецепта',
         upload_to='recipes/',
-        blank=True,
         help_text='Картинка, закодированная в Base64'
     )
     text = models.TextField(

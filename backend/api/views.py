@@ -31,14 +31,14 @@ class TagViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     """Получение рецептов."""
     queryset = Recipe.objects.all()
-
+    # permission_classes = [is]
     def perform_create(self, serializer): 
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
         if self.action in ['favorite', 'shopping_cart']:
             return RecipeReducedSerializer
-        elif self.request.method in ('POST', 'PATCH', 'PUT'):
+        elif self.request.method in ('POST', 'PATCH'):
             return RecipeWriteSerializer
         return RecipeSerializer
 
