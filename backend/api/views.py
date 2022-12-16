@@ -1,6 +1,17 @@
 from django.shortcuts import get_object_or_404
-from recipes.models import Favorite, Follow, Ingredient, Recipe, ShoppingCart, Tag
+from recipes.models import (
+    Favorite,
+    Follow,
+    Ingredient,
+    Recipe,
+    ShoppingCart,
+    Tag
+)
+# from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from .pagination import PageNumberLimitPagination
+from .permissions import IsUserOrReadOnly
 from .serializers import (
     CustomUser,
     RecipeReducedSerializer,
@@ -14,6 +25,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
 from djoser.views import UserViewSet
+
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
@@ -31,8 +43,10 @@ class TagViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     """Получение рецептов."""
     queryset = Recipe.objects.all()
-    # permission_classes = [is]
-    def perform_create(self, serializer): 
+    permission_classes = [IsUserOrReadOnly]
+    pagination_class = PageNumberLimitPagination
+
+    def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
@@ -85,7 +99,16 @@ class RecipeViewSet(ModelViewSet):
 
 class CustomUserViewSet(UserViewSet):
     """Получение и работа с пользователями."""
+    pagination_class = PageNumberLimitPagination
 
+    def get_permissions(self):
+        if self.action == "me" and self.request.user.is_anonymous:
+            self.permission_classes = [IsAuthenticated]
+        return super().get_permissions()
+
+    def get_paginated_response(self, data):
+        
+        return super().get_paginated_response(data)
     @action(methods=['post', 'delete'], detail=True)
     def subscribe(self, request, id=None):
         following = get_object_or_404(CustomUser, id=id)

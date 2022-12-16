@@ -145,12 +145,22 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'PAGE_SIZE': 3,
 }
 
 AUTH_USER_MODEL = 'recipes.CustomUser'
 
 DJOSER = {
+    'HIDE_USERS': False,
     'SERIALIZERS': {
         'user': 'api.serializers.CustomUserSerializer',
+    },
+    'PERMISSIONS':
+    {
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+        'user': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
     }
 }
