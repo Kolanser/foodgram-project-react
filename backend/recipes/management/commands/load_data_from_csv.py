@@ -4,7 +4,7 @@ from django.core.management import BaseCommand
 import logging
 import sys
 
-from ...models import Ingredient
+from ...models import Ingredient, Tag
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -39,3 +39,25 @@ class Command(BaseCommand):
         Ingredient.objects.bulk_create(ingredients)
 
         logger.info('Загрузка ингридиентов в БД завершена')
+
+        logger.info('Удаление данных в таблице Теги')
+        Tag.objects.all().delete()
+
+        logger.info('Загрузка тегов в БД')
+        tags = []
+        for row in DictReader(
+            open('./data/tags.csv', encoding='utf-8'),
+            ['name', 'color', 'slug']
+        ):
+            tags.append(
+                Tag(
+                    name=row['name'],
+                    color=row['color'],
+                    slug=row['slug'],
+                )
+            )
+
+        Tag.objects.bulk_create(tags)
+
+        logger.info('Загрузка тегов в БД завершена')
+
