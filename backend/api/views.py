@@ -7,7 +7,6 @@ from recipes.models import (
     ShoppingCart,
     Tag
 )
-# from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .pagination import PageNumberLimitPagination
@@ -27,15 +26,18 @@ from rest_framework.decorators import action
 from djoser.views import UserViewSet
 
 
-
 class IngredientViewSet(ReadOnlyModelViewSet):
     """Получение ингридиентов."""
+
+    pagination_class = None
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
 
 
 class TagViewSet(ReadOnlyModelViewSet):
     """Получение тегов."""
+
+    pagination_class = None
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
 
@@ -102,13 +104,14 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = PageNumberLimitPagination
 
     def get_permissions(self):
-        if self.action == "me" and self.request.user.is_anonymous:
+        if self.request.user.is_anonymous and (
+            self.action == 'me' or
+            self.action == 'subscribe' or
+            self.action == 'subscriptions'
+        ):
             self.permission_classes = [IsAuthenticated]
         return super().get_permissions()
 
-    def get_paginated_response(self, data):
-        
-        return super().get_paginated_response(data)
     @action(methods=['post', 'delete'], detail=True)
     def subscribe(self, request, id=None):
         following = get_object_or_404(CustomUser, id=id)
@@ -132,14 +135,50 @@ class CustomUserViewSet(UserViewSet):
             )
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    def get_response_data(self, paginated_queryset):
+        data = self.get_serializer(
+            paginated_queryset, many=True
+        ).data
+        return data
+
     @action(detail=False)
     def subscriptions(self, request):
-        serializer_class_obj = self.get_serializer(
-            request.user.subscriptions, many=True
-        )
-        return Response(serializer_class_obj.data)
+        # serializer_class_obj = self.get_serializer(
+        #     request.user.subscriptions, many=True
+        # )
+        # return Response(serializer_class_obj.data)
+        queryset = request.user.subscriptions
+        page = self.paginate_queryset(queryset.all())
+        if page:
+            data = self.get_response_data(page)
+            return self.get_paginated_response(data)
+        data = self.get_response_data(queryset)
+        return Response(data)
+
 
     def get_serializer_class(self):
         if self.action in ['subscriptions', 'subscribe']:
             return FollowSerializer
         return super().get_serializer_class()
+
+
+    # def registros_data_table(self, request):
+    # queryset = Interfaces.objects.all()
+
+    # page = self.paginate_queryset(queryset)
+    # if page is not None:
+    #     data = self.get_response_data(page)
+    #     return self.get_paginated_response(data)
+
+    # data = self.get_response_data(queryset)
+    # return Response(data)
+    
+    # queryset = Interfaces.objects.all()
+
+    # page = self.paginate_queryset(queryset)
+    # if page is not None:
+    #     data = self.get_response_data(page)
+    #     return self.get_paginated_response(data)
+
+    # data = self.get_response_data(queryset)
+    # return Response(data)
