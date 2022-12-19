@@ -25,6 +25,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
 from djoser.views import UserViewSet
+from .filters import RecipesFilter, IngredientFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
@@ -37,15 +39,17 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class TagViewSet(ReadOnlyModelViewSet):
     """Получение тегов."""
-
     pagination_class = None
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
+    filterset_class = IngredientFilter
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['name']
 
-from .filters import RecipesFilter
-from django_filters.rest_framework import DjangoFilterBackend
+
 class RecipeViewSet(ModelViewSet):
     """Получение рецептов."""
+
     queryset = Recipe.objects.all()
     permission_classes = [IsUserOrReadOnly]
     pagination_class = PageNumberLimitPagination
@@ -148,10 +152,6 @@ class CustomUserViewSet(UserViewSet):
 
     @action(detail=False)
     def subscriptions(self, request):
-        # serializer_class_obj = self.get_serializer(
-        #     request.user.subscriptions, many=True
-        # )
-        # return Response(serializer_class_obj.data)
         queryset = request.user.subscriptions
         page = self.paginate_queryset(queryset.all())
         if page:
@@ -165,25 +165,3 @@ class CustomUserViewSet(UserViewSet):
         if self.action in ['subscriptions', 'subscribe']:
             return FollowSerializer
         return super().get_serializer_class()
-
-
-    # def registros_data_table(self, request):
-    # queryset = Interfaces.objects.all()
-
-    # page = self.paginate_queryset(queryset)
-    # if page is not None:
-    #     data = self.get_response_data(page)
-    #     return self.get_paginated_response(data)
-
-    # data = self.get_response_data(queryset)
-    # return Response(data)
-    
-    # queryset = Interfaces.objects.all()
-
-    # page = self.paginate_queryset(queryset)
-    # if page is not None:
-    #     data = self.get_response_data(page)
-    #     return self.get_paginated_response(data)
-
-    # data = self.get_response_data(queryset)
-    # return Response(data)

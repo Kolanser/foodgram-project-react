@@ -1,6 +1,5 @@
-from django_filters import rest_framework as filters
-from django_filters import FilterSet, AllValuesFilter, BooleanFilter, ModelMultipleChoiceFilter, NumberFilter, NumericRangeFilter
-from recipes.models import Recipe, Ingredient, Tag
+from django_filters import FilterSet, AllValuesFilter, CharFilter, NumberFilter
+
 
 class RecipesFilter(FilterSet):
 
@@ -30,7 +29,6 @@ class RecipesFilter(FilterSet):
             return queryset.filter(id__in=ids)
         return queryset.exclude(id__in=ids)
 
-
     def filter_is_favorited(self, queryset, name, value):
         user = self.request.user
         target_sample = user.favorite_recipes
@@ -41,14 +39,8 @@ class RecipesFilter(FilterSet):
         target_sample = user.shopping_carts
         return self.get_filter_queryset(queryset, value, user, target_sample)
 
-class IngredientFilter(filters.FilterSet):
-    name = filters.CharFilter(
+
+class IngredientFilter(FilterSet):
+    name = CharFilter(
         lookup_expr='startswith'
     )
-
-    class Meta:
-        model = Ingredient
-        fields = ['name', ]
-
-
-# class CustumFilter()
