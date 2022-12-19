@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (
     Favorite,
     Follow,
@@ -41,12 +42,16 @@ class TagViewSet(ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
 
-
+from .filters import RecipesFilter
+from django_filters.rest_framework import DjangoFilterBackend
 class RecipeViewSet(ModelViewSet):
     """Получение рецептов."""
     queryset = Recipe.objects.all()
     permission_classes = [IsUserOrReadOnly]
     pagination_class = PageNumberLimitPagination
+    filterset_class = RecipesFilter
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['tags', 'author', 'is_favorited', 'is_in_shopping_cart']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
