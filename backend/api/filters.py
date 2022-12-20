@@ -1,4 +1,9 @@
-from django_filters import FilterSet, AllValuesFilter, CharFilter, NumberFilter
+from django_filters import (
+    FilterSet,
+    ModelMultipleChoiceFilter,
+    NumberFilter
+)
+from recipes.models import Tag
 
 
 class RecipesFilter(FilterSet):
@@ -9,8 +14,10 @@ class RecipesFilter(FilterSet):
     is_in_shopping_cart = NumberFilter(
         method='filter_is_in_shopping_cart'
     )
-    tags = AllValuesFilter(
+    tags = ModelMultipleChoiceFilter(
         field_name='tags__slug',
+        queryset=Tag.objects.all(),
+        to_field_name='slug'
     )
     author = NumberFilter(
         field_name='author__id',

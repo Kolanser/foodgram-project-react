@@ -4,6 +4,7 @@ from recipes.models import (
     Favorite,
     Follow,
     Ingredient,
+    IngredientRecipe,
     Recipe,
     ShoppingCart,
     Tag
@@ -27,6 +28,8 @@ from rest_framework.decorators import action
 from djoser.views import UserViewSet
 from .filters import RecipesFilter, IngredientFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.http import HttpResponse
+from .renderers import PassthroughRenderer
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
@@ -35,6 +38,9 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     pagination_class = None
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
+    filterset_class = IngredientFilter
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['name']
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -42,9 +48,6 @@ class TagViewSet(ReadOnlyModelViewSet):
     pagination_class = None
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
-    filterset_class = IngredientFilter
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ['name']
 
 
 class RecipeViewSet(ModelViewSet):
@@ -107,6 +110,34 @@ class RecipeViewSet(ModelViewSet):
             )
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    @action(
+        methods=['get'],
+        detail=False,
+        renderer_classes=(PassthroughRenderer,),
+        permission_classes=[IsAuthenticated]
+    )
+    def download_shopping_cart(self, request):
+        user = request.user
+        final_list = {}
+        ingredients = IngredientRecipe.objects.filter(
+            recipe__in_shopping_cart__user=user).values_list(
+            'ingredient__name', 'ingredient__measurement_unit',
+            'amount'
+        )
+        for item in ingredients:
+            name = item[0]
+            if name not in final_list:
+                final_list[name] = {
+                    'measurement_unit': item[1],
+                    'amount': item[2]
+                }
+            else:
+                final_list[name]['amount'] += item[2]
+        response = HttpResponse(str(final_list), content_type='text/plain')
+        response['Content-Disposition'] = ('attachment; '
+                                           'filename="shopping_list.txt"')
+        return response
+
 
 class CustomUserViewSet(UserViewSet):
     """Получение и работа с пользователями."""
@@ -159,7 +190,6 @@ class CustomUserViewSet(UserViewSet):
             return self.get_paginated_response(data)
         data = self.get_response_data(queryset)
         return Response(data)
-
 
     def get_serializer_class(self):
         if self.action in ['subscriptions', 'subscribe']:
