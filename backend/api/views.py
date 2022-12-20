@@ -27,7 +27,6 @@ from rest_framework import status
 from rest_framework.decorators import action
 from djoser.views import UserViewSet
 from .filters import RecipesFilter, IngredientFilter
-from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
 from .renderers import PassthroughRenderer
 
@@ -58,7 +57,12 @@ class RecipeViewSet(ModelViewSet):
     pagination_class = PageNumberLimitPagination
     filterset_class = RecipesFilter
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ['tags', 'author', 'is_favorited', 'is_in_shopping_cart']
+    filterset_fields = [
+        'tags',
+        'author',
+        'is_favorited',
+        'is_in_shopping_cart'
+    ]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

@@ -1,5 +1,4 @@
 from csv import DictReader
-from json import load
 from django.core.management import BaseCommand
 import logging
 import sys
@@ -60,4 +59,3 @@ class Command(BaseCommand):
         Tag.objects.bulk_create(tags)
 
         logger.info('Загрузка тегов в БД завершена')
-

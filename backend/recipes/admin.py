@@ -6,9 +6,10 @@ from .models import (
     Ingredient,
     IngredientRecipe,
     ShoppingCart,
-    Tag, 
+    Tag,
     Recipe
 )
+
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):

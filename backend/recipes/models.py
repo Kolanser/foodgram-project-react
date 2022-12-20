@@ -88,7 +88,7 @@ class Tag(models.Model):
         max_length=7,
         verbose_name='Цвет тега',
         help_text='Цветовой HEX-код (например, #49B64E)'
-        )
+    )
     slug = models.SlugField(
         max_length=200,
         unique=True
