@@ -1,19 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
+from django.contrib.auth import get_user_model
 
 
 # Минимальное время приготовления рецепта
 MIN_VALUE_COOKING_TIME: int = 1
 
-
-class CustomUser(AbstractUser):
-    """Модель пользователя."""
-    first_name = models.CharField('first name', max_length=150, unique=True)
-    last_name = models.CharField('last name', max_length=150, unique=True)
-    email = models.EmailField('email address', unique=True)
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+User = get_user_model()
 
 
 class Ingredient(models.Model):
@@ -106,7 +99,7 @@ class Tag(models.Model):
 class Recipe(models.Model):
     """Модель рецептов."""
     author = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор',
@@ -157,42 +150,10 @@ class Recipe(models.Model):
         return f'{self.name}, {self.author}'
 
 
-class Follow(models.Model):
-    """Модель подписки."""
-    user = models.ForeignKey(
-        'CustomUser',
-        on_delete=models.CASCADE,
-        related_name='subscriptions',
-        verbose_name='Пользователь',
-        help_text='Пользователь, который подписывается'
-    )
-    following = models.ForeignKey(
-        'CustomUser',
-        on_delete=models.CASCADE,
-        related_name='following',
-        verbose_name='Автор рецепта',
-        help_text='Автор, на которого подписываются'
-    )
-
-    class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        constraints = [
-            models.UniqueConstraint(
-                name='unique_follows',
-                fields=['user', 'following'],
-            ),
-            models.CheckConstraint(
-                check=~models.Q(user=models.F('following')),
-                name='non_self_follow'
-            )
-        ]
-
-
 class Favorite(models.Model):
     """Модель избранного."""
     user = models.ForeignKey(
-        'CustomUser',
+        User,
         on_delete=models.CASCADE,
         related_name='favorite_recipes',
         verbose_name='Пользователь',
@@ -220,7 +181,7 @@ class Favorite(models.Model):
 class ShoppingCart(models.Model):
     """Модель списка покупок."""
     user = models.ForeignKey(
-        'CustomUser',
+        User,
         on_delete=models.CASCADE,
         related_name='shopping_carts',
         verbose_name='Пользователь',

@@ -3,7 +3,7 @@ from django.core.management import BaseCommand
 import logging
 import sys
 
-from ...models import Ingredient, Tag
+from recipes.models import Ingredient, Tag
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

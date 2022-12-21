@@ -4,9 +4,13 @@ from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
 from djoser.conf import settings
 from recipes.models import (
-    CustomUser, Follow, Ingredient, IngredientRecipe, Recipe, Tag
+    Ingredient, IngredientRecipe, Recipe, Tag
 )
+from users.models import Follow
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class CustomUserSerializer(UserSerializer):
@@ -14,8 +18,8 @@ class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = CustomUser
-        fields = tuple(CustomUser.REQUIRED_FIELDS) + (
+        model = User
+        fields = tuple(User.REQUIRED_FIELDS) + (
             settings.USER_ID_FIELD,
             settings.LOGIN_FIELD,
         ) + ('is_subscribed', )

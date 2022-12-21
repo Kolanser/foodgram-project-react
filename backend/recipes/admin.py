@@ -1,28 +1,15 @@
 from django.contrib import admin
 from .models import (
-    CustomUser,
     Favorite,
-    Follow,
     Ingredient,
     IngredientRecipe,
     ShoppingCart,
     Tag,
     Recipe
 )
+from django.contrib.auth import get_user_model
 
-
-@admin.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
-    """Админка ингридиентов."""
-    list_display = (
-        'email',
-        'username',
-        'first_name',
-        'first_name',
-        'password'
-    )
-    search_fields = ('username',)
-    list_filter = ('username', 'email')
+User = get_user_model()
 
 
 @admin.register(Ingredient)
@@ -78,15 +65,6 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author', 'tags')
     list_filter = ('name', 'tags', 'author')
     empty_value_display = '-пусто-'
-
-
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
-    """Админка подписок."""
-    list_display = (
-        'user',
-        'following',
-    )
 
 
 @admin.register(Favorite)

@@ -2,19 +2,18 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (
     Favorite,
-    Follow,
     Ingredient,
     IngredientRecipe,
     Recipe,
     ShoppingCart,
     Tag
 )
+from users.models import Follow
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .pagination import PageNumberLimitPagination
 from .permissions import IsUserOrReadOnly
 from .serializers import (
-    CustomUser,
     RecipeReducedSerializer,
     FollowSerializer,
     IngredientSerializer,
@@ -29,6 +28,9 @@ from djoser.views import UserViewSet
 from .filters import RecipesFilter, IngredientFilter
 from django.http import HttpResponse
 from .renderers import PassthroughRenderer
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
@@ -158,7 +160,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(methods=['post', 'delete'], detail=True)
     def subscribe(self, request, id=None):
-        following = get_object_or_404(CustomUser, id=id)
+        following = get_object_or_404(User, id=id)
         user = request.user
         if (self.request.method == 'DELETE' and
                 user.subscriptions.filter(following=following)):
