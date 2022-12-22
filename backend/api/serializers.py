@@ -1,5 +1,5 @@
-import base64
-from django.core.files.base import ContentFile
+from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
 from djoser.conf import settings
@@ -9,7 +9,7 @@ from recipes.models import (
 from users.models import Follow
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
-from django.contrib.auth import get_user_model
+
 
 User = get_user_model()
 
@@ -80,17 +80,6 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
 
 
-# class Base64ImageField(serializers.ImageField):
-#     """Класс для изображений в формате base64."""
-#     def to_internal_value(self, data):
-#         """Преобразование данных base64 в изображение."""
-#         if isinstance(data, str) and data.startswith('data:image'):
-#             format, imgstr = data.split(';base64,')
-#             ext = format.split('/')[-1]
-#             data = ContentFile(base64.b64decode(imgstr), name='recipe.' + ext)
-#         return super().to_internal_value(data)
-
-
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор модели рецептов."""
     tags = TagSerializer(many=True)
@@ -146,21 +135,27 @@ class RecipeWriteSerializer(RecipeSerializer):
         queryset=Tag.objects.all()
     )
 
+    @transaction.atomic
     def create(self, validated_data):
         """Создание рецепта."""
-        ingredients = validated_data.pop('ingredientrecipe_set')
+        ingredients_recipe = validated_data.pop('ingredientrecipe_set')
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
-        for ingredient in ingredients:
-            id = ingredient['ingredient'].get('id')
-            IngredientRecipe.objects.create(
-                recipe=recipe,
-                ingredient=Ingredient.objects.get(id=id),
-                amount=ingredient.get('amount')
-            )
         recipe.tags.set(tags)
+        ingredients_amount = []
+        for ingredient_recipe in ingredients_recipe:
+            id = ingredient_recipe['ingredient'].get('id')
+            ingredients_amount.append(
+                IngredientRecipe(
+                    recipe=recipe,
+                    ingredient=Ingredient.objects.get(id=id),
+                    amount=ingredient_recipe.get('amount')
+                )
+            )
+        IngredientRecipe.objects.bulk_create(ingredients_amount)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         """Обновление рецепта."""
         instance.name = validated_data.get('name', instance.name)
