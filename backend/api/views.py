@@ -151,9 +151,7 @@ class CustomUserViewSet(UserViewSet):
 
     def get_permissions(self):
         if self.request.user.is_anonymous and (
-            self.action == 'me' or
-            self.action == 'subscribe' or
-            self.action == 'subscriptions'
+            self.action in ('me', 'subscribe', 'subscriptions')
         ):
             self.permission_classes = [IsAuthenticated]
         return super().get_permissions()
