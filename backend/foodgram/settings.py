@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'users',
     'api',
     'rest_framework.authtoken',
-    'colorfield'
+    'colorfield',
+    'drf_extra_fields'
 ]
 
 MIDDLEWARE = [
