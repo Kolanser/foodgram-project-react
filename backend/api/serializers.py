@@ -26,6 +26,7 @@ class CustomUserSerializer(UserSerializer):
         read_only_fields = (settings.LOGIN_FIELD, 'is_subscribed')
 
     def get_is_subscribed(self, obj):
+        """Подписан ли текущий пользователь на этого."""
         user = self.context['request'].user
         return (
             user.is_authenticated and
@@ -36,7 +37,7 @@ class CustomUserSerializer(UserSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор модели Ingredient."""
+    """Сериализатор для ингредиентов."""
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit')
@@ -45,7 +46,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Сериализатор модели Tag."""
+    """Сериализатор для тегов."""
 
     class Meta:
         fields = ('id', 'name', 'color', 'slug')
@@ -54,16 +55,19 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IdIngredientField(serializers.Field):
+    """Поле для id в модели связей ингредиентов и рецептов."""
     def to_representation(self, value):
+        """Предоставить значение без преобразования."""
         return value
 
     def to_internal_value(self, data):
+        """Проверить наличие ингредиента и вернуть id."""
         get_object_or_404(Ingredient, id=data)
         return data
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор модели IngredientRecipe."""
+    """Сериализатор связей ингредиентов и рецептов."""
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
@@ -78,6 +82,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 class Base64ImageField(serializers.ImageField):
     """Класс для изображений в формате base64."""
     def to_internal_value(self, data):
+        """Преобразование данных base64 в изображение."""
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
@@ -113,6 +118,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
     def get_is_favorited(self, obj):
+        """Находится ли рецепт в списке избранного."""
         user = self.context['request'].user
         return (
             user.is_authenticated and
@@ -122,6 +128,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_in_shopping_cart(self, obj):
+        """Находится ли рецепт в списке покупок."""
         user = self.context['request'].user
         return (
             user.is_authenticated and
@@ -184,6 +191,7 @@ class RecipeWriteSerializer(RecipeSerializer):
         return instance
 
     def to_representation(self, instance):
+        """Для показа данных о новом рецепте."""
         return RecipeSerializer(
             instance,
             context={

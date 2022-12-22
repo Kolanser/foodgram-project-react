@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
-
+from colorfield.fields import ColorField
 
 # Минимальное время приготовления рецепта
 MIN_VALUE_COOKING_TIME: int = 1
@@ -46,7 +46,6 @@ class IngredientRecipe(models.Model):
         'Ingredient',
         on_delete=models.CASCADE,
         verbose_name='Ингридиент',
-        # related_name='ingredients_for_recipe'
     )
     recipe = models.ForeignKey(
         'Recipe',
@@ -77,8 +76,7 @@ class Tag(models.Model):
         help_text='Максимальная длина тега 200 символов',
         unique=True
     )
-    color = models.CharField(
-        max_length=7,
+    color = ColorField(
         verbose_name='Цвет тега',
         help_text='Цветовой HEX-код (например, #49B64E)'
     )
@@ -132,7 +130,12 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления рецепта',
         help_text='Время приготовления (в минутах)',
-        validators=[MinValueValidator(MIN_VALUE_COOKING_TIME)]
+        validators=[
+            MinValueValidator(
+                MIN_VALUE_COOKING_TIME,
+                'Время приготовления должно быть целым числом не менее 1.'
+            )
+        ]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
