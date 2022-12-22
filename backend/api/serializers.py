@@ -140,7 +140,8 @@ class RecipeWriteSerializer(RecipeSerializer):
         """Создание рецепта."""
         ingredients_recipe = validated_data.pop('ingredientrecipe_set')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
+        # recipe = Recipe.objects.create(**validated_data)
+        recipe = super().create(validated_data)
         recipe.tags.set(tags)
         ingredients_amount = []
         for ingredient_recipe in ingredients_recipe:
@@ -158,16 +159,10 @@ class RecipeWriteSerializer(RecipeSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         """Обновление рецепта."""
-        instance.name = validated_data.get('name', instance.name)
-        instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get(
-            'cooking_time',
-            instance.cooking_time
-        )
-        instance.image = validated_data.get('image', instance.image)
         tags = validated_data.pop('tags')
-        instance.tags.set(tags)
         ingredients_data = validated_data.pop('ingredientrecipe_set')
+        instance = super().update(instance, validated_data)
+        instance.tags.set(tags)
         instance.ingredients.clear()
         ingredients_amount = []
         for ingredient in ingredients_data:
