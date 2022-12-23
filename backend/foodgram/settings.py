@@ -71,6 +71,7 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
 DATABASES = {
     'default': {
         'ENGINE': getenv('DB_ENGINE', default='django.db.backends.postgresql'),
