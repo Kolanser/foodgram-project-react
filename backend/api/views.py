@@ -1,34 +1,24 @@
+from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (
-    Favorite,
-    Ingredient,
-    IngredientRecipe,
-    Recipe,
-    ShoppingCart,
-    Tag
-)
-from users.models import Follow
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from .pagination import PageNumberLimitPagination
-from .permissions import IsUserOrReadOnly
-from .serializers import (
-    RecipeReducedSerializer,
-    FollowSerializer,
-    IngredientSerializer,
-    RecipeSerializer,
-    TagSerializer,
-    RecipeWriteSerializer
-)
-from rest_framework.response import Response
+from djoser.views import UserViewSet
+from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+                            ShoppingCart, Tag)
 from rest_framework import status
 from rest_framework.decorators import action
-from djoser.views import UserViewSet
-from .filters import RecipesFilter, IngredientFilter
-from django.http import HttpResponse
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from users.models import Follow
+
+from .filters import IngredientFilter, RecipesFilter
+from .pagination import PageNumberLimitPagination
+from .permissions import IsUserOrReadOnly
 from .renderers import PassthroughRenderer
-from django.contrib.auth import get_user_model
+from .serializers import (FollowSerializer, IngredientSerializer,
+                          RecipeReducedSerializer, RecipeSerializer,
+                          RecipeWriteSerializer, TagSerializer)
 
 User = get_user_model()
 
@@ -72,7 +62,7 @@ class RecipeViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['favorite', 'shopping_cart']:
             return RecipeReducedSerializer
-        elif self.request.method in ('POST', 'PATCH'):
+        if self.request.method in ('POST', 'PATCH'):
             return RecipeWriteSerializer
         return RecipeSerializer
 
@@ -84,7 +74,7 @@ class RecipeViewSet(ModelViewSet):
                 and user.favorite_recipes.filter(recipe=recipe)):
             user.favorite_recipes.get(recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif (self.request.method == 'POST'
+        if (self.request.method == 'POST'
                 and not user.favorite_recipes.filter(recipe=recipe)):
             Favorite.objects.create(user=user, recipe=recipe)
             serializers_obj = self.get_serializer(
@@ -104,7 +94,7 @@ class RecipeViewSet(ModelViewSet):
                 and user.shopping_carts.filter(recipe=recipe)):
             user.shopping_carts.get(recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif (self.request.method == 'POST'
+        if (self.request.method == 'POST'
                 and not user.shopping_carts.filter(recipe=recipe)):
             ShoppingCart.objects.create(user=user, recipe=recipe)
             serializers_obj = self.get_serializer(
@@ -166,7 +156,7 @@ class CustomUserViewSet(UserViewSet):
                 user=user, following=following
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif (self.request.method == 'POST'
+        if (self.request.method == 'POST'
                 and user != following
                 and not user.subscriptions.filter(following=following)):
             Follow.objects.create(user=user, following=following)
@@ -180,10 +170,9 @@ class CustomUserViewSet(UserViewSet):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def get_response_data(self, paginated_queryset):
-        data = self.get_serializer(
+        return self.get_serializer(
             paginated_queryset, many=True
         ).data
-        return data
 
     @action(detail=False)
     def subscriptions(self, request):

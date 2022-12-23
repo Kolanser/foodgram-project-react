@@ -1,8 +1,8 @@
-from csv import DictReader
-from django.core.management import BaseCommand
 import logging
 import sys
+from csv import DictReader
 
+from django.core.management import BaseCommand
 from recipes.models import Ingredient, Tag
 
 logger = logging.getLogger(__name__)
