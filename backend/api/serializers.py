@@ -30,10 +30,8 @@ class CustomUserSerializer(UserSerializer):
         """Подписан ли текущий пользователь на этого."""
         user = self.context['request'].user
         return (
-            user.is_authenticated and
-            user.subscriptions.filter(
-                following=obj
-            ).exists()
+            user.is_authenticated
+            and user.subscriptions.filter(following=obj).exists()
         )
 
 
@@ -111,8 +109,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         """Находится ли рецепт в списке избранного."""
         user = self.context['request'].user
         return (
-            user.is_authenticated and
-            user.favorite_recipes.filter(
+            user.is_authenticated
+            and user.favorite_recipes.filter(
                 recipe=obj
             ).exists()
         )
@@ -121,8 +119,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         """Находится ли рецепт в списке покупок."""
         user = self.context['request'].user
         return (
-            user.is_authenticated and
-            user.shopping_carts.filter(
+            user.is_authenticated
+            and user.shopping_carts.filter(
                 recipe=obj
             ).exists()
         )
@@ -239,7 +237,7 @@ class FollowSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         return self.context['request'].user.subscriptions.filter(
             following=obj.following
-            ).exists()
+        ).exists()
 
     def get_recipes_count(self, obj):
         return obj.following.recipes.count()

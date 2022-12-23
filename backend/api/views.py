@@ -80,12 +80,12 @@ class RecipeViewSet(ModelViewSet):
     def favorite(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
         user = request.user
-        if (self.request.method == 'DELETE' and
-                user.favorite_recipes.filter(recipe=recipe)):
+        if (self.request.method == 'DELETE'
+                and user.favorite_recipes.filter(recipe=recipe)):
             user.favorite_recipes.get(recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif (self.request.method == 'POST' and
-                not user.favorite_recipes.filter(recipe=recipe)):
+        elif (self.request.method == 'POST'
+                and not user.favorite_recipes.filter(recipe=recipe)):
             Favorite.objects.create(user=user, recipe=recipe)
             serializers_obj = self.get_serializer(
                 recipe
@@ -100,12 +100,12 @@ class RecipeViewSet(ModelViewSet):
     def shopping_cart(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
         user = request.user
-        if (self.request.method == 'DELETE' and
-                user.shopping_carts.filter(recipe=recipe)):
+        if (self.request.method == 'DELETE'
+                and user.shopping_carts.filter(recipe=recipe)):
             user.shopping_carts.get(recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif (self.request.method == 'POST' and
-                not user.shopping_carts.filter(recipe=recipe)):
+        elif (self.request.method == 'POST'
+                and not user.shopping_carts.filter(recipe=recipe)):
             ShoppingCart.objects.create(user=user, recipe=recipe)
             serializers_obj = self.get_serializer(
                 recipe
@@ -160,15 +160,15 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id=None):
         following = get_object_or_404(User, id=id)
         user = request.user
-        if (self.request.method == 'DELETE' and
-                user.subscriptions.filter(following=following)):
+        if (self.request.method == 'DELETE'
+                and user.subscriptions.filter(following=following)):
             Follow.objects.filter(
                 user=user, following=following
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif (self.request.method == 'POST' and
-                user != following and
-                not user.subscriptions.filter(following=following)):
+        elif (self.request.method == 'POST'
+                and user != following
+                and not user.subscriptions.filter(following=following)):
             Follow.objects.create(user=user, following=following)
             serializer_class_obj = self.get_serializer(
                 user.subscriptions.get(user=user, following=following)
