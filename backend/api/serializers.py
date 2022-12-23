@@ -140,7 +140,6 @@ class RecipeWriteSerializer(RecipeSerializer):
         """Создание рецепта."""
         ingredients_recipe = validated_data.pop('ingredientrecipe_set')
         tags = validated_data.pop('tags')
-        # recipe = Recipe.objects.create(**validated_data)
         recipe = super().create(validated_data)
         recipe.tags.set(tags)
         ingredients_amount = []

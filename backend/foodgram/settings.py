@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = getenv('SECRET_KEY', default='SECRET')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '*'
@@ -64,22 +64,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 # DATABASES = {
 #     'default': {
-#         'ENGINE': getenv('DB_ENGINE', default='django.db.backends.postgresql'),
-#         'NAME': getenv('DB_NAME'),
-#         'USER': getenv('POSTGRES_USER'),
-#         'PASSWORD': getenv('POSTGRES_PASSWORD'),
-#         'HOST': getenv('DB_HOST'),
-#         'PORT': getenv('DB_PORT')
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': getenv('DB_NAME'),
+        'USER': getenv('POSTGRES_USER'),
+        'PASSWORD': getenv('POSTGRES_PASSWORD'),
+        'HOST': getenv('DB_HOST'),
+        'PORT': getenv('DB_PORT')
+    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {

@@ -8,13 +8,11 @@ services:
     env_file:
       - ./.env
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: kolansers/foodgram-frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
   backend:
-    build: ../backend/
+    image: kolansers/foodgram-backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
