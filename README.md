@@ -164,7 +164,7 @@ docker-compose down -v
 Для быстрого ориентирования в системе эндпоинтов API в проекте подключена документация API! Воспользоваться ей можно пройдя по адресу:
 
 ```sh
-http://http://fooodgram.sytes.net/api/docs/
+http://fooodgram.sytes.net/api/docs/
 ```
 
   
