@@ -129,7 +129,16 @@ class RecipeViewSet(ModelViewSet):
                 }
             else:
                 final_list[name]['amount'] += item[2]
-        response = HttpResponse(str(final_list), content_type='text/plain')
+        response_list = []
+        for element in sorted(final_list.keys()):
+            amount = final_list[element]['amount']
+            measurement_unit = final_list[element]['measurement_unit']
+            shop = f'{element} - {amount} {measurement_unit}'
+            response_list.append(shop)
+        response = HttpResponse(
+            '\n'.join(response_list),
+            content_type='text/plain'
+        )
         response['Content-Disposition'] = ('attachment; '
                                            'filename="shopping_list.txt"')
         return response
