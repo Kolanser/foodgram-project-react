@@ -1,3 +1,4 @@
+from datetime import date
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -130,11 +131,21 @@ class RecipeViewSet(ModelViewSet):
             else:
                 final_list[name]['amount'] += item[2]
         response_list = []
+        lenght_empty_str = 30
+        response_list.append(
+            f'Список покупок пользователя: {user.first_name} {user.last_name}'
+        )
+        response_list.append(f'Дата: {date.today()}')
+        response_list.append('-' * lenght_empty_str)
+        counter_shop = 1
         for element in sorted(final_list.keys()):
             amount = final_list[element]['amount']
             measurement_unit = final_list[element]['measurement_unit']
-            shop = f'{element} - {amount} {measurement_unit}'
+            shop = f'{counter_shop}. {element} - {amount} {measurement_unit}'
             response_list.append(shop)
+            counter_shop += 1
+        response_list.append('-' * lenght_empty_str)
+        response_list.append('Foodgram. Продуктовый помощник')
         response = HttpResponse(
             '\n'.join(response_list),
             content_type='text/plain'
